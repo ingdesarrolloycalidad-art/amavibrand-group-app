@@ -25,24 +25,22 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar Proyecto iOS (Capacitor + SPM)
+      - name: Sincronizar y Parchear AppDelegate
         run: |
-          # 1. Eliminación total de rastro previo (iOS folder, Podfile y Workspaces)
           rm -rf ios
-          
-          # 2. Agregar plataforma desde cero (Capacitor detectará SPM automáticamente)
           npx cap add ios
           npx cap update ios
           npx cap sync ios
           
-          # 3. Forzamos a Xcode a descargar y enlazar los paquetes Swift (Capacitor, etc.)
-          xcodebuild -resolvePackageDependencies \
-                     -project ios/App/App.xcodeproj \
-                     -scheme App
+          # Reparar error de sintaxis en AppDelegate.swift
+          sed -i '' 's/restorationHandler: restorationHandler//g' ios/App/App/AppDelegate.swift
+          # Limpiar comas sobrantes si quedaron
+          sed -i '' 's/continue: userActivity, )/continue: userActivity)/g' ios/App/App/AppDelegate.swift
+
+          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
 
       - name: Compilar para iOS (Xcode)
         run: |
-          # Usamos banderas extra para ignorar advertencias y deshabilitar indexación pesada
           xcodebuild clean build \
                      -project ios/App/App.xcodeproj \
                      -scheme App \
@@ -51,5 +49,4 @@ jobs:
                      -destination 'generic/platform=iOS' \
                      CODE_SIGNING_ALLOWED=NO \
                      COMPILER_INDEX_STORE_ENABLE=NO \
-                     GCC_WARN_INHIBIT_ALL_WARNINGS=YES \
-                     SWIFT_COMPILATION_MODE=singlefile
+                     GCC_WARN_INHIBIT_ALL_WARNINGS=YES
