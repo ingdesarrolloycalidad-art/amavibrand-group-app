@@ -25,18 +25,36 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar y Parchear AppDelegate (Universal Links Fix)
+      - name: Sincronizar y Reparar AppDelegate (Capacitor 6)
         run: |
           rm -rf ios
           npx cap add ios
           npx cap update ios
           npx cap sync ios
           
-          # PARCHE QUIRÚRGICO:
-          # Convertimos el userActivity en su URL interna para que Capacitor lo acepte.
-          # Esto cambia la llamada a: .application(application, userActivity.webpageURL)
-          sed -i '' 's/continue: userActivity, restorationHandler: restorationHandler/userActivity.webpageURL/g' ios/App/App/AppDelegate.swift
-          sed -i '' 's/continue: userActivity/userActivity.webpageURL/g' ios/App/App/AppDelegate.swift
+          # Sobrescribimos el AppDelegate con la estructura correcta para Capacitor 6
+          cat <<EOF > ios/App/App/AppDelegate.swift
+          import UIKit
+          import Capacitor
+
+          @UIApplicationMain
+          class AppDelegate: UIResponder, UIApplicationDelegate {
+
+              var window: UIWindow?
+
+              func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+                  return true
+              }
+
+              func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+                  return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
+              }
+
+              func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+                  return ApplicationDelegateProxy.shared.application(application, userActivity: userActivity)
+              }
+          }
+          EOF
 
           xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
 
