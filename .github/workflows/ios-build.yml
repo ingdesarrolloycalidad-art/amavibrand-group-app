@@ -27,17 +27,21 @@ jobs:
 
       - name: Sincronizar Proyecto iOS (Capacitor + SPM)
         run: |
+          # Eliminamos rastro previo para que Capacitor regenere AppDelegate y la estructura SPM
           rm -rf ios
           npx cap add ios
+          npx cap update ios
           npx cap sync ios
-          # No necesitamos pod install porque el log muestra que usas SPM
+          # Esperamos un momento para que el sistema de archivos de macOS procese los cambios
+          sleep 5
 
       - name: Compilar para iOS (Xcode)
         run: |
-          # Usamos el .xcodeproj directamente ya que no hay .xcworkspace de pods
-          xcodebuild -project ios/App/App.xcodeproj \
+          # Agregamos 'clean' para forzar una compilación desde cero sin basura previa
+          xcodebuild clean build \
+                     -project ios/App/App.xcodeproj \
                      -scheme App \
                      -configuration Debug \
                      -sdk iphoneos \
                      -destination 'generic/platform=iOS' \
-                     build CODE_SIGNING_ALLOWED=NO
+                     CODE_SIGNING_ALLOWED=NO
