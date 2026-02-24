@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout del código
@@ -15,24 +15,37 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Subimos a 20 para mejor compatibilidad con Vite 6
+          node-version: 20
 
-      - name: Instalar dependencias (Limpieza Nativa)
+      - name: Instalación Limpia de Dependencias
         run: |
-          # Esto evita el error de "Cannot find native binding" de Tailwind
+          # 1. Borrado profundo de rastros de Windows
           rm -rf node_modules package-lock.json
-          npm install
+          
+          # 2. Instalación fresca (Esto descargará Tailwind Oxide para Mac)
+          npm install --include=optional
+          
+          # 3. Forzar la reconstrucción de paquetes nativos
+          npm rebuild
 
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar Capacitor e Instalar Pods
+      - name: Sincronizar Capacitor
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
           npx cap sync ios
-          # Paso crucial para iOS:
-          cd ios/App && pod install
+
+      - name: Instalar CocoaPods
+        run: |
+          cd ios/App
+          pod install
 
       - name: Compilar para iOS (Xcode)
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos build CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -configuration Debug \
+                     -sdk iphoneos \
+                     -destination 'generic/platform=iOS' \
+                     build CODE_SIGNING_ALLOWED=NO

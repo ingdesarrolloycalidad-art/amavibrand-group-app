@@ -232,11 +232,27 @@ export default function DashboardAnalitico() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={metrics.pieData} innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
-                  {metrics.pieData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                <Pie 
+                  data={metrics.pieData} 
+                  innerRadius={50} 
+                  outerRadius={70} 
+                  paddingAngle={5} 
+                  dataKey="value"
+                >
+                  {metrics.pieData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
+                  ))}
                 </Pie>
-                <Tooltip />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+                
+                {/* MODIFICACIÓN AQUÍ: Formateador de Tooltip */}
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toFixed(2)} hrs`, 'Cantidad']} 
+                />
+                
+                <Legend 
+                  iconType="circle" 
+                  wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} 
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
