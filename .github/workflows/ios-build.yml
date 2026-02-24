@@ -25,32 +25,17 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Preparar Plataforma iOS
+      - name: Sincronizar Proyecto iOS (Capacitor + SPM)
         run: |
-          # Limpiamos rastro viejo
           rm -rf ios
-          # Agregamos la plataforma fresca
           npx cap add ios
-          # Sincronizamos archivos web a iOS
           npx cap sync ios
-          # Pausa de seguridad para que el sistema de archivos se actualice
-          sleep 5
-
-      - name: Instalar CocoaPods
-        run: |
-          # Verificamos existencia antes de entrar
-          if [ -f "ios/App/Podfile" ]; then
-            cd ios/App
-            pod install
-          else
-            echo "Error crítico: Podfile no generado."
-            ls -R ios
-            exit 1
-          fi
+          # No necesitamos pod install porque el log muestra que usas SPM
 
       - name: Compilar para iOS (Xcode)
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace \
+          # Usamos el .xcodeproj directamente ya que no hay .xcworkspace de pods
+          xcodebuild -project ios/App/App.xcodeproj \
                      -scheme App \
                      -configuration Debug \
                      -sdk iphoneos \
