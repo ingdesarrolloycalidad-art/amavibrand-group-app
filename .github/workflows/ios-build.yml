@@ -25,14 +25,14 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar y Reparar AppDelegate (Capacitor 6)
+      - name: Sincronizar y Reparar AppDelegate (Capacitor 6 Final)
         run: |
           rm -rf ios
           npx cap add ios
           npx cap update ios
           npx cap sync ios
           
-          # Sobrescribimos el AppDelegate con la estructura correcta para Capacitor 6
+          # Sobrescribimos con la sintaxis exacta que Capacitor 6 requiere para evitar el error de ambigüedad
           cat <<EOF > ios/App/App/AppDelegate.swift
           import UIKit
           import Capacitor
@@ -51,7 +51,7 @@ jobs:
               }
 
               func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-                  return ApplicationDelegateProxy.shared.application(application, userActivity: userActivity)
+                  return ApplicationDelegateProxy.shared.application(application, userActivity)
               }
           }
           EOF
