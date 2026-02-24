@@ -12,29 +12,36 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js (v22 para Capacitor 8)
+      - name: Configurar Node.js (v22)
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # Actualizamos para cumplir el requisito de Capacitor CLI
+          node-version: 22
 
-      - name: Instalación Limpia y Forzada para Mac
+      - name: Instalación de Dependencias
         run: |
-          rm -rf node_modules package-lock.json
-          # Instalamos forzando la plataforma Darwin (Mac) y arquitectura ARM64
           npm install --os=darwin --cpu=arm64
           npm install --include=optional
 
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar Capacitor e iOS
+      - name: Configurar Proyecto iOS (Capacitor)
         run: |
+          # Sincroniza los archivos del build web a la carpeta de iOS
           npx cap sync ios
-
+          
       - name: Instalar CocoaPods
         run: |
-          cd ios/App
-          pod install
+          # Verificamos si existe la carpeta antes de entrar
+          if [ -d "ios/App" ]; then
+            cd ios/App
+            pod install
+          else
+            echo "Error: La carpeta ios/App no existe. Reintentando creación..."
+            npx cap add ios
+            cd ios/App
+            pod install
+          fi
 
       - name: Compilar para iOS (Xcode)
         run: |
