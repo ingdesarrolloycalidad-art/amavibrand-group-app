@@ -27,21 +27,24 @@ jobs:
 
       - name: Sincronizar Proyecto iOS (Capacitor + SPM)
         run: |
-          # Eliminamos rastro previo para que Capacitor regenere AppDelegate y la estructura SPM
+          # Eliminación total para regeneración limpia
           rm -rf ios
           npx cap add ios
           npx cap update ios
-          npx cap sync ios
-          # Esperamos un momento para que el sistema de archivos de macOS procese los cambios
-          sleep 5
+          
+          # Forzamos a Xcode a resolver los paquetes de Swift antes de compilar
+          # Esto evita que AppDelegate falle por no encontrar 'Capacitor'
+          xcodebuild -resolvePackageDependencies \
+                     -project ios/App/App.xcodeproj \
+                     -scheme App
 
       - name: Compilar para iOS (Xcode)
         run: |
-          # Agregamos 'clean' para forzar una compilación desde cero sin basura previa
           xcodebuild clean build \
                      -project ios/App/App.xcodeproj \
                      -scheme App \
                      -configuration Debug \
                      -sdk iphoneos \
                      -destination 'generic/platform=iOS' \
-                     CODE_SIGNING_ALLOWED=NO
+                     CODE_SIGNING_ALLOWED=NO \
+                     COMPILER_INDEX_STORE_ENABLE=NO
