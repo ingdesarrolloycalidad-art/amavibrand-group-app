@@ -25,17 +25,20 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar y Parchear AppDelegate
+      - name: Sincronizar y Parchear AppDelegate (Capacitor 6 Fix)
         run: |
           rm -rf ios
           npx cap add ios
           npx cap update ios
           npx cap sync ios
           
-          # Reparar error de sintaxis en AppDelegate.swift
-          sed -i '' 's/restorationHandler: restorationHandler//g' ios/App/App/AppDelegate.swift
-          # Limpiar comas sobrantes si quedaron
-          sed -i '' 's/continue: userActivity, )/continue: userActivity)/g' ios/App/App/AppDelegate.swift
+          # PARCHE DEFINITIVO: 
+          # Cambiamos la llamada a 'continue' (vieja) por 'open' (nueva de Capacitor 6)
+          # Esto resuelve los errores: extra argument 'continue' y missing argument 'open'
+          sed -i '' 's/return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)/return ApplicationDelegateProxy.shared.application(application, userActivity)/g' ios/App/App/AppDelegate.swift
+          
+          # Por si acaso la versión del archivo ya no tenía el restorationHandler:
+          sed -i '' 's/return ApplicationDelegateProxy.shared.application(application, continue: userActivity)/return ApplicationDelegateProxy.shared.application(application, userActivity)/g' ios/App/App/AppDelegate.swift
 
           xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
 
