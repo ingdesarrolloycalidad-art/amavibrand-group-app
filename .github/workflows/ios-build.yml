@@ -2,11 +2,11 @@ name: Build iOS App
 
 on:
   push:
-    branches: [ main ] # Se ejecutará cada vez que subas cambios a la rama main
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: macos-latest # Aquí es donde GitHub nos presta la Mac
+    runs-on: macos-latest
 
     steps:
       - name: Checkout del código
@@ -15,20 +15,24 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20 # Subimos a 20 para mejor compatibilidad con Vite 6
 
-      - name: Instalar dependencias web
-        run: npm install
+      - name: Instalar dependencias (Limpieza Nativa)
+        run: |
+          # Esto evita el error de "Cannot find native binding" de Tailwind
+          rm -rf node_modules package-lock.json
+          npm install
 
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Instalar dependencias de Capacitor
+      - name: Sincronizar Capacitor e Instalar Pods
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
           npx cap sync ios
+          # Paso crucial para iOS:
+          cd ios/App && pod install
 
       - name: Compilar para iOS (Xcode)
         run: |
-          # Esto verifica que el proyecto de Xcode sea válido y compile
           xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos build CODE_SIGNING_ALLOWED=NO
