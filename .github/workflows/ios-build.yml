@@ -25,23 +25,19 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Configurar Proyecto iOS (Capacitor)
+      - name: Reconstruir Proyecto iOS
         run: |
-          # Sincroniza los archivos del build web a la carpeta de iOS
+          # Eliminamos la carpeta ios por si está corrupta o incompleta
+          rm -rf ios
+          # Agregamos la plataforma e instalamos los archivos base
+          npx cap add ios
           npx cap sync ios
-          
+
       - name: Instalar CocoaPods
         run: |
-          # Verificamos si existe la carpeta antes de entrar
-          if [ -d "ios/App" ]; then
-            cd ios/App
-            pod install
-          else
-            echo "Error: La carpeta ios/App no existe. Reintentando creación..."
-            npx cap add ios
-            cd ios/App
-            pod install
-          fi
+          cd ios/App
+          # Ahora el Podfile tiene que existir porque lo acabamos de generar
+          pod install
 
       - name: Compilar para iOS (Xcode)
         run: |
