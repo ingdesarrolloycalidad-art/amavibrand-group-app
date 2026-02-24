@@ -1,0 +1,8 @@
+{
+  "name": "Sistema AMA - AmaVibrand Group",
+  "description": "Sistema integral de gestión para AmaVibrand Group, incluyendo control de jornadas, inventario, rutas y administración.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}

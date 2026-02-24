@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235779444077",
+    "project_id": "sistemaama-c03f7",
+    "storage_bucket": "sistemaama-c03f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235779444077:android:8c05baf43cd87b1f2b1e64",
+        "android_client_info": {
+          "package_name": "com.amavibrand.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjVpT6k2ecVRP6oLWZzD7A_WWzkJgUJsY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
