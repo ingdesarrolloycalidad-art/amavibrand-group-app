@@ -6,34 +6,29 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Configurar Node.js (v22 para Capacitor 8)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # Actualizamos para cumplir el requisito de Capacitor CLI
 
-      - name: Instalación Limpia de Dependencias
+      - name: Instalación Limpia y Forzada para Mac
         run: |
-          # 1. Borrado profundo de rastros de Windows
           rm -rf node_modules package-lock.json
-          
-          # 2. Instalación fresca (Esto descargará Tailwind Oxide para Mac)
+          # Instalamos forzando la plataforma Darwin (Mac) y arquitectura ARM64
+          npm install --os=darwin --cpu=arm64
           npm install --include=optional
-          
-          # 3. Forzar la reconstrucción de paquetes nativos
-          npm rebuild
 
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Sincronizar Capacitor
+      - name: Sincronizar Capacitor e iOS
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/ios
           npx cap sync ios
 
       - name: Instalar CocoaPods
