@@ -25,24 +25,28 @@ jobs:
       - name: Build del proyecto web
         run: npm run build
 
-      - name: Forzar Estructura iOS
+      - name: Preparar Plataforma iOS
         run: |
-          # Borramos rastro previo
+          # Limpiamos rastro viejo
           rm -rf ios
-          # Inicializamos Capacitor si no existe
-          npx cap init "AmaViBrand" "com.amavibrand.app" --web-dir dist
-          # Agregamos e instalamos la plataforma
+          # Agregamos la plataforma fresca
           npx cap add ios
+          # Sincronizamos archivos web a iOS
           npx cap sync ios
-          
-          # DIAGNÓSTICO: Esto nos dirá qué hay dentro de la carpeta
-          echo "--- Contenido de la carpeta ios ---"
-          ls -R ios
+          # Pausa de seguridad para que el sistema de archivos se actualice
+          sleep 5
 
       - name: Instalar CocoaPods
         run: |
-          # Solo entramos si el Podfile existe, de lo contrario lo buscamos
-          cd ios/App && pod install
+          # Verificamos existencia antes de entrar
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App
+            pod install
+          else
+            echo "Error crítico: Podfile no generado."
+            ls -R ios
+            exit 1
+          fi
 
       - name: Compilar para iOS (Xcode)
         run: |

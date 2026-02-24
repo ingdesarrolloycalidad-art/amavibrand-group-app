@@ -244,14 +244,21 @@ export default function DashboardAnalitico() {
                   ))}
                 </Pie>
                 
-                {/* MODIFICACIÓN AQUÍ: Formateador de Tooltip */}
+                {/* Tooltip: Redondeo a 2 decimales al pasar el dedo */}
                 <Tooltip 
-                  formatter={(value: number) => [`${value.toFixed(2)} hrs`, 'Cantidad']} 
+                  formatter={(value: number) => [`${value.toFixed(2)} hrs`, 'Cantidad']}
+                  contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 
+                {/* Leyenda: Muestra el valor con 2 decimales al lado del nombre */}
                 <Legend 
                   iconType="circle" 
-                  wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} 
+                  wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                  formatter={(value, entry: any) => (
+                    <span className="text-slate-600 font-bold">
+                      {value}: <span className="text-slate-400">{entry.payload.value.toFixed(2)}</span>
+                    </span>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
